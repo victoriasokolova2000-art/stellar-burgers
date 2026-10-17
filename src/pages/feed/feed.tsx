@@ -1,15 +1,28 @@
+import { fetchFeeds, selectFeedOrders } from '@slices/feed';
 import { Preloader } from '@ui';
 import { FeedUI } from '@ui-pages';
+import { useEffect } from 'react';
 
-import type { TOrder } from '@utils-types';
+import { useDispatch, useSelector } from '@services/store';
+import { ORDERS_POLLING_INTERVAL } from '@utils/constants';
 
 export const Feed = (): React.JSX.Element => {
-  // TODO: Взять переменную из стора
-  const orders: TOrder[] = [];
+  const dispatch = useDispatch();
+  const orders = useSelector(selectFeedOrders);
 
   const handleGetFeeds = (): void => {
-    // TODO: Запросить ленту заказов
+    void dispatch(fetchFeeds());
   };
+
+  // Лента периодически обновляется, чтобы новые заказы появлялись без перезагрузки
+  useEffect(() => {
+    void dispatch(fetchFeeds());
+    const timer = setInterval(
+      () => void dispatch(fetchFeeds()),
+      ORDERS_POLLING_INTERVAL
+    );
+    return (): void => clearInterval(timer);
+  }, [dispatch]);
 
   if (!orders.length) {
     return <Preloader />;

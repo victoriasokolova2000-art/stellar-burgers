@@ -1,21 +1,32 @@
+import { selectFeedOrders } from '@slices/feed';
+import { selectIngredients } from '@slices/ingredients';
+import { fetchOrderByNumber, selectOrderByNumber } from '@slices/order';
+import { selectProfileOrders } from '@slices/profile-orders';
 import { Preloader, OrderInfoUI } from '@ui';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+
+import { useDispatch, useSelector } from '@services/store';
 
 import type { TIngredient } from '@utils-types';
 
 export const OrderInfo = (): React.JSX.Element => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0,
-  };
+  const dispatch = useDispatch();
+  const number = Number(useParams().number);
+  const ingredients = useSelector(selectIngredients);
+  const feedOrders = useSelector(selectFeedOrders);
+  const profileOrders = useSelector(selectProfileOrders);
+  const orderByNumber = useSelector(selectOrderByNumber);
 
-  const ingredients: TIngredient[] = [];
+  // Заказ ищется в уже загруженных списках, а при прямом переходе запрашивается с сервера
+  const orderData =
+    feedOrders.find((order) => order.number === number) ??
+    profileOrders.find((order) => order.number === number) ??
+    (orderByNumber?.number === number ? orderByNumber : null);
+
+  useEffect(() => {
+    if (!orderData && number) void dispatch(fetchOrderByNumber(number));
+  }, [dispatch, number, orderData]);
 
   /**
    * использование useMemo не обязательно
