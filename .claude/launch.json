@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "stellar-burgers",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start", "--", "--host", "127.0.0.1"],
+      "port": 4000,
+      "url": "http://127.0.0.1:4000"
+    }
+  ]
+}
